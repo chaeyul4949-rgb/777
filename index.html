@@ -213,11 +213,46 @@
   .mode{padding:9px 16px; font-size:13px; border-radius:2px; color:#a89ebc; background:transparent;
     box-shadow:inset 0 0 0 1px rgba(168,158,188,.3)}
   .mode[aria-pressed="true"]{color:#2a1a04; background:var(--gold); box-shadow:none; font-weight:700}
+
+  /* ── 모바일 가상 조이스틱 ── */
+  #joy{
+    position:absolute; left:0; top:0; width:124px; height:124px; margin:-62px 0 0 -62px;
+    z-index:3; pointer-events:none; border-radius:50%;
+    background:radial-gradient(circle, rgba(246,201,69,.07) 0 52%, rgba(16,9,24,.35) 53% 100%);
+    box-shadow:inset 0 0 0 2px rgba(246,201,69,.45), 0 0 18px rgba(0,0,0,.35);
+    opacity:.45; transition:opacity .15s;
+  }
+  #joy.on{opacity:.95}
+  #joyKnob{
+    position:absolute; left:50%; top:50%; width:54px; height:54px; margin:-27px 0 0 -27px;
+    border-radius:50%;
+    background:radial-gradient(circle at 38% 32%, var(--gold-lite), var(--gold) 55%, #a86f0f);
+    box-shadow:0 3px 0 var(--gold-deep), 0 0 14px rgba(246,201,69,.45);
+  }
+
+  @media(pointer:coarse){ #lvHint{display:none} }
+  /* ── 폰: 증강 카드를 가로 한 줄로 ── */
+  @media(max-width:560px){
+    #levelup.veil{padding:14px 8px}
+    #levelup .sheet{gap:12px}
+    .cards{
+      display:grid; grid-template-columns:none; grid-auto-flow:column;
+      grid-auto-columns:minmax(104px,1fr); gap:7px;
+      overflow-x:auto; scroll-snap-type:x mandatory; padding:4px 2px 6px;
+    }
+    .upg{padding:12px 9px; gap:6px; min-height:0; scroll-snap-align:start}
+    .upg:hover,.upg:focus-visible{transform:none}
+    .upg .k{font-size:9.5px; letter-spacing:.08em}
+    .upg .n{font-size:15.5px}
+    .upg .d{font-size:11.5px; line-height:1.45}
+    .upg .lv{font-size:10px}
+  }
 </style>
 </head>
 <body>
 <div id="wrap">
   <canvas id="cv"></canvas>
+  <div id="joy" hidden aria-hidden="true"><div id="joyKnob"></div></div>
   <button id="mute" aria-pressed="false" aria-label="소리 끄기" title="소리 켜기 / 끄기">♪</button>
   <button id="respin" disabled title="맞은 그림은 고정하고 나머지만 다시 돌린다 (스페이스바)">
     홀드 리스핀 <span class="c" id="coinN">0</span>
@@ -245,18 +280,8 @@
         <button class="mode" id="mQuick" aria-pressed="false">빠른 판 10분</button>
       </div>
       <div class="row"><button class="btn" id="start">게임 시작</button></div>
-      <p class="hint">드래그 · 터치 이동 &nbsp;·&nbsp; 스페이스바 홀드 리스핀 &nbsp;·&nbsp; P 일시정지 &nbsp;·&nbsp; M 음소거</p>
+      <p class="hint">조이스틱 · 드래그 이동 &nbsp;·&nbsp; 스페이스바 홀드 리스핀 &nbsp;·&nbsp; P 일시정지 &nbsp;·&nbsp; M 음소거</p>
       <p class="hint" style="color:#8a7fa0">릴을 4개 이상으로 늘리면 <b style="color:var(--gold)">2쌍이 동시에</b> 터진다</p>
-    </div>
-  </div>
-
-  <div class="veil" id="intro" hidden>
-    <div class="sheet story">
-      <p class="chapter">하우스 · 자정</p>
-      <p class="sline" id="s0"></p>
-      <p class="sline" id="s1"></p>
-      <p class="sline" id="s2"></p>
-      <div class="row"><button class="btn" id="go">그냥 들어간다</button></div>
     </div>
   </div>
 
@@ -296,6 +321,7 @@ const TAU=Math.PI*2;
 const cv=document.getElementById('cv');
 const ctx=cv.getContext('2d');
 let W=0,H=0,DPR=1;
+const IS_TOUCH=(window.matchMedia&&matchMedia('(pointer:coarse)').matches)||('ontouchstart' in window)||navigator.maxTouchPoints>0&&matchMedia('(hover:none)').matches;
 let ZOOM=1,VW=0,VH=0;   /* 화면이 좁을수록 줌아웃해 시야를 넓힌다 */
 const clamp=(v,a,b)=>v<a?a:v>b?b:v;
 const rnd=(a=1,b=0)=>b+Math.random()*(a-b);
@@ -3063,13 +3089,56 @@ function gainXp(v){
    ══════════════════════════════════════════════════════════════ */
 const keys={};
 const ptr={on:false,x:0,y:0};
+/* ── 가상 조이스틱: 화면 어디를 눌러도 그 자리에 조이스틱이 생긴다 ── */
+const JOY_R=50;
+const joy={on:false,id:-1,bx:0,by:0,dx:0,dy:0};
+const joyEl=document.getElementById('joy'), joyKnob=document.getElementById('joyKnob');
+function joyHome(){
+  const r=cv.getBoundingClientRect();
+  joy.bx=r.width/2; joy.by=r.height-Math.max(120,r.height*.2);
+}
+function joyDraw(){
+  joyEl.style.transform='translate('+joy.bx+'px,'+joy.by+'px)';
+  joyKnob.style.transform='translate('+joy.dx+'px,'+joy.dy+'px)';
+  joyEl.classList.toggle('on',joy.on);
+}
+function joyRelease(){ joy.on=false; joy.id=-1; joy.dx=joy.dy=0; joyHome(); joyDraw(); }
+let joyShown=false;
+function joySync(){
+  const want=IS_TOUCH&&state==='play';
+  if(want!==joyShown){ joyShown=want; joyEl.hidden=!want; if(!want) joyRelease(); else { joyHome(); joyDraw(); } }
+}
 cv.addEventListener('pointerdown',e=>{
   if(state!=='play') return;
+  if(e.pointerType!=='mouse'){
+    if(joy.on) return;
+    try{ cv.setPointerCapture(e.pointerId); }catch(_){}
+    const r=cv.getBoundingClientRect();
+    joy.on=true; joy.id=e.pointerId; joy.bx=e.clientX-r.left; joy.by=e.clientY-r.top; joy.dx=joy.dy=0;
+    joyDraw(); e.preventDefault(); return;
+  }
   try{ cv.setPointerCapture(e.pointerId); }catch(_){}
   ptr.on=true; ptr.x=e.clientX; ptr.y=e.clientY;
 });
-cv.addEventListener('pointermove',e=>{ if(ptr.on){ ptr.x=e.clientX; ptr.y=e.clientY; } });
-['pointerup','pointercancel','pointerleave'].forEach(k=>cv.addEventListener(k,()=>{ptr.on=false;}));
+cv.addEventListener('pointermove',e=>{
+  if(joy.on&&e.pointerId===joy.id){
+    const r=cv.getBoundingClientRect();
+    let x=e.clientX-r.left-joy.bx, y=e.clientY-r.top-joy.by;
+    const m=Math.hypot(x,y);
+    if(m>JOY_R){
+      /* 손가락이 멀리 가면 조이스틱이 따라온다 */
+      const over=m-JOY_R; joy.bx+=x/m*over; joy.by+=y/m*over;
+      x=x/m*JOY_R; y=y/m*JOY_R;
+    }
+    joy.dx=x; joy.dy=y; joyDraw(); return;
+  }
+  if(ptr.on){ ptr.x=e.clientX; ptr.y=e.clientY; }
+});
+['pointerup','pointercancel'].forEach(k=>cv.addEventListener(k,e=>{
+  if(e.pointerId===joy.id){ joyRelease(); return; }
+  ptr.on=false;
+}));
+cv.addEventListener('pointerleave',e=>{ if(e.pointerType==='mouse') ptr.on=false; });
 addEventListener('keydown',e=>{
   const k=e.key.toLowerCase(); keys[k]=1;
   if(state==='levelup'){
@@ -3089,7 +3158,7 @@ addEventListener('keydown',e=>{
   if([' ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
 });
 addEventListener('keyup',e=>{ keys[e.key.toLowerCase()]=0; });
-addEventListener('blur',()=>{ ptr.on=false;
+addEventListener('blur',()=>{ ptr.on=false; if(joy.on) joyRelease();
   if(state==='play'){ state='pause'; SFX.musicStop();
     document.getElementById('paused').hidden=false; } });
 
@@ -3098,6 +3167,10 @@ function updPlayer(dt){
   if(ptr.on){
     const wx=(ptr.x-W/2)/ZOOM+cam.x, wy=(ptr.y-H/2)/ZOOM+cam.y, d=dist(wx,wy,P.x,P.y);
     if(d>6){ dx=(wx-P.x)/d; dy=(wy-P.y)/d; }
+  }
+  if(joy.on){
+    const m=Math.hypot(joy.dx,joy.dy);
+    if(m>7){ const k=Math.min(1,(m-7)/(JOY_R*.55)); dx=joy.dx/m*k; dy=joy.dy/m*k; }
   }
   let kx=0,ky=0;
   if(keys['a']||keys['arrowleft']) kx-=1;
@@ -3777,9 +3850,11 @@ function resize(){
   W=cv.clientWidth||window.innerWidth; H=cv.clientHeight||window.innerHeight;
   cv.width=Math.max(1,Math.round(W*DPR)); cv.height=Math.max(1,Math.round(H*DPR));
   /* 짧은 쪽이 최소 660 월드 단위는 보이도록 — 폰에서도 시야가 좁아지지 않는다 */
-  ZOOM=clamp(Math.min(W,H)/660,.42,1);
+  /* 폰(터치)에서는 훨씬 넓게 — 짧은 쪽에 950 월드 단위가 보인다 */
+  ZOOM = IS_TOUCH ? clamp(Math.min(W,H)/950,.3,1) : clamp(Math.min(W,H)/660,.42,1);
   VW=W/ZOOM; VH=H/ZOOM;
   if(!carpet) makeCarpet();
+  if(joyShown&&!joy.on){ joyHome(); joyDraw(); }
 }
 /* ── 블룸: 화면을 반으로 줄여 흐린 뒤 가산 합성 ── */
 let bloomCv=null,bloomCtx=null,bloomOn=true,slowF=0;
@@ -4143,6 +4218,7 @@ function loop(now){
   requestAnimationFrame(loop);
   if(!last) last=now;
   let raw=Math.min(.034,(now-last)/1000); last=now;
+  joySync();
   if(state!=='play'){
     if(state==='title'){ renderTitleBg(); drawDemo(raw); }
     else if(state==='intro') renderTitleBg();
@@ -4176,7 +4252,7 @@ function startGame(){
   RUN.arena=null; RUN.surgeT=60; RUN.dealT=0; RUN.theme=-1; SFX.musicStop();
   DEALS.forEach(d=>d.used=0); dealMode=false; updRespinUI();
   T=0; cam.x=0; cam.y=0; shakeMag=0; flashT=0; hitstop=0; eid=1;
-  ['title','end','levelup','paused','intro'].forEach(id=>document.getElementById(id).hidden=true);
+  ['title','end','levelup','paused'].forEach(id=>document.getElementById(id).hidden=true);
   CARD.t=1; CARD.dur=0;
   state='play'; last=0;
   banner('할 거 없으니까 꼭대기까지 가보자','#f6c945');
@@ -4311,17 +4387,8 @@ function toggleMute(){
   muteBtn.setAttribute('aria-label',m?'소리 켜기':'소리 끄기');
 }
 muteBtn.addEventListener('click',toggleMute);
-function showIntro(){
-  SFX.init(); SFX.resume();
-  STORY.prologue.forEach((t,i)=>{ document.getElementById('s'+i).innerHTML=t; });
-  document.getElementById('title').hidden=true;
-  document.getElementById('intro').hidden=false;
-  state='intro';
-}
-document.getElementById('start').addEventListener('click',showIntro);
-document.getElementById('go').addEventListener('click',()=>{
-  document.getElementById('intro').hidden=true; startGame();
-});
+/* 스토리 컷신 없이 바로 시작 */
+document.getElementById('start').addEventListener('click',startGame);
 document.getElementById('again').addEventListener('click',startGame);
 document.getElementById('resume').addEventListener('click',()=>{
   SFX.resume(); state='play'; last=0; SFX.music(RUN.theme,true);
