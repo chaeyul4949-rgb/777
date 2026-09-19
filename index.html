@@ -285,7 +285,7 @@
         <canvas id="demoReel" width="392" height="176" aria-hidden="true"></canvas>
       </div>
 
-      <p class="tagline">머리 위 슬롯머신이 알아서 돈다.<br>끝까지 살아남아라.</p>
+      <p class="tagline">꼭대기까지 가자.</p>
 
       <div class="modepick" role="group" aria-label="게임 길이">
         <button class="mode" id="mNormal" aria-pressed="true">정식 20분</button>
@@ -1212,19 +1212,19 @@ function glowSpr(key,rgb){
 /* ── 궁정 카드(보스) ───────────────────────────────────────── */
 const BOSS_DEF=[
   {n:'J',bname:'잭',title:'1층 문지기',hp:4600,r:44,col:'#e0344a',suit:'heart',
-   line:'어, 손님? 이 시간에? …할 거 없어서 왔구나. 나도 그래.',
+   line:'어, 손님? 이 시간에? …할 거 없구나. 나도.',
    robe:'#c5303d',panel:'#2f66b0',hat:'plume',face:'J'},
   {n:'Q',bname:'퀸',title:'연회장의 여왕',hp:5400,r:42,col:'#d879e8',suit:'dia',
-   line:'혼자 왔어? 심심했지? 친구들 잔뜩 불러줄게!',
+   line:'혼자 왔네. 심심했지? 친구들 불러줄게. 잔뜩.',
    robe:'#9c37ad',panel:'#e2b03a',hat:'crown3',face:'Q'},
   {n:'K',bname:'킹',title:'금고의 왕',hp:11000,r:46,col:'#7fb2ff',suit:'club',
-   line:'여기까지 올라왔다고? 너 진짜 할 일 없구나.',
+   line:'여기까지 왔어? 할 일 진짜 없나 보네.',
    robe:'#2f66b0',panel:'#c5303d',hat:'crown5',face:'K'},
   {n:'A',bname:'스페이드 에이스',title:'딜러',hp:18000,r:44,col:'#e6e0ef',suit:'spade',
-   line:'손님, 슬슬 집에 가실 시간인데요. …안 가세요?',
+   line:'손님, 슬슬 문 닫는데요. …안 가세요? 그래요 그럼.',
    robe:'#332f4a',panel:'#7e7a98',hat:'cap',face:'A'},
   {n:'★',bname:'조커',title:'하우스의 주인',hp:1,r:46,col:'#f6c945',suit:'spade',
-   line:'심심했어? 나도! 이 노래 한 곡 끝날 때까지 놀아줄게!',
+   line:'심심했어? 나도! 노래 한 곡. 끝날 때까지만 놀자.',
    robe:'#6a2f9e',panel:'#e2b03a',hat:'jester',face:'JOKER'}
 ];
 /* ══ 궁정 카드 — 실제 English pattern 도안을 참고한 인물화 ══ */
@@ -1674,12 +1674,12 @@ const RUN={bossTimes:[300,600,900,1200],bossIdx:0,boss:null,spawnT:0,cleared:0,
 /* ── 이야기 ─────────────────────────────────────────── */
 const STORY={
   prologue:[
-    '토요일 밤. 폰 배터리 3%, 유튜브 알고리즘은 이미 다 봤고, 냉장고엔 물밖에 없다. <b>할 게 없다.</b>',
-    '편의점이나 갈까 하고 나왔는데, 골목 끝에 자정에만 불 켜지는 카지노 <b>하우스</b>가 보였다. 할 거 없으니까 그냥 들어갔다.',
-    '입구 슬롯머신 레버를 당겼더니 기계가 머리 위에 철썩 붙었다. 안 떨어진다. 바닥의 카드들이 일제히 달려온다. …어차피 할 거 없었으니까, 꼭대기까지 가보지 뭐.'
+    '토요일 밤. 배터리 3%. 유튜브는 볼 거 다 봤고 냉장고엔 물뿐. <b>할 게 없다.</b> 진짜로.',
+    '편의점이나 갈까 하고 나왔는데. 골목 끝, 자정에만 불 들어온다는 카지노 <b>하우스</b>. 그냥 들어갔다. 이유는 딱히.',
+    '레버 한 번 당겼을 뿐인데 기계가 머리 위로 철썩. 안 떨어진다. 바닥 카드들이 일제히 고개를 든다. 뭐… 올라가 보든가.'
   ],
-  win:'7, 7, 7. 잭팟 벨이 미친 듯이 울리고 하우스 천장에서 코인이 비처럼 쏟아졌다. 조커는 "아~ 재밌었다" 하고 바닥에 드러누웠다. 코인 한 주먹 챙겨서 편의점 가서 컵라면이랑 콜라를 샀다. 할 거 없던 밤치고는 꽤 괜찮았다.',
-  lose:'눈 떠보니 집 앞이었다. 머리 위 슬롯머신은 사라졌고, 주머니엔 체리 스티커 한 장. …내일도 할 거 없으면 또 가봐야지.'
+  win:'7, 7, 7. 벨이 미친 듯이 울린다. 천장에서 코인이 쏟아지고, 조커는 "아 재밌었다" 하더니 그대로 드러누웠다. 코인 한 줌 챙겨서 나왔다. 편의점 불은 아직 켜져 있고. 컵라면이나 사 갈까.',
+  lose:'눈 떠보니 집 앞. 머리 위 기계는 없다. 주머니엔 체리 스티커 한 장. 꿈이었나. 근데 스티커는 왜.'
 };
 const CARD={t:0,dur:0,name:'',title:'',line:'',col:'#f6c945'};
 function showTitleCard(D){
@@ -1785,9 +1785,11 @@ function dbgHitBoss(){
     if(!SFX.seek(4,t)) b.showT=t;
     banner('테스트 — 곡 30초 건너뛰기','#9a8fae'); return;
   }
+  if(b.idx===3&&!b.joker&&b.hp<=b.maxHp*.5+1){      /* 스페이드 에이스: Q로는 50%까지만 */
+    banner('테스트 — 스페이드는 50%에서 멈춤','#9a8fae'); return; }
   b.hp-=b.maxHp*.2; b.flash=.2;
   dn(b.x,b.y-b.r-10,'-20%','#ff5068'); shake(6);
-  if(b.idx===3&&!b.joker&&b.st!=='morph') b.hp=Math.max(b.hp,1);   /* 에이스는 죽지 않고 조커로 변신 */
+  if(b.idx===3&&!b.joker) b.hp=Math.max(b.hp,b.maxHp*.5);
   if(b.hp<=0) kill(b);
 }
 function dbgNextBoss(){
@@ -2200,7 +2202,7 @@ function updEnemies(dt){
 /* ── 보스 AI ───────────────────────────────────────────────── */
 function openArena(){
   EN.length=0; EB.length=0; PR.length=0;
-  RUN.arena={x:P.x,y:P.y,r:1800,tr:clamp(Math.min(VW,VH)*.6,380,560),t:0,closing:0};
+  RUN.arena={x:P.x,y:P.y,r:1800,tr:IS_TOUCH?clamp(Math.min(VW,VH)*.74,380,720):clamp(Math.min(VW,VH)*.6,380,560),t:0,closing:0};
   SFX.wall();
 }
 function spawnBoss(idx){
@@ -2504,10 +2506,10 @@ function jokerFrame(b,dt,B){
 /* 곡의 구간이 바뀔 때 */
 function jkSection(b,sec){
   b.patI=0; b.patLeft=0;
-  if(sec.id==='A'){ banner('버티세요! — 노래가 끝날 때까지','#f6c945'); }
+  if(sec.id==='A'){ banner('버텨. 노래 끝날 때까지','#f6c945'); }
   else if(sec.id==='B'){ banner('템포가 올라간다','#ffd97a'); }
-  else if(sec.id==='C'){ banner('조커가 진심이 됐다','#ff5068'); flash(.3,'246,201,69'); }
-  else if(sec.id==='brk'){ banner('…조커가 숨을 고른다','#b6a8cc');
+  else if(sec.id==='C'){ banner('조커, 진심 됐다','#ff5068'); flash(.3,'246,201,69'); }
+  else if(sec.id==='brk'){ banner('…숨 고르는 중','#b6a8cc');
     b.pat=-1; b.patLeft=0; b.hatT=0; b.floor=null; b.blades=null; }
   else if(sec.id==='D'){ jkDrop(b,3); banner('D  R  O  P','#ff5068'); }
   else if(sec.id==='X'){
@@ -2530,7 +2532,7 @@ function jokerEndShow(b){
   SLOT.jam=0; SLOT.jammed=false; RUN.forceJack=true;
   if(SLOT.state==='idle') SLOT.t=Math.max(SLOT.t,2.4);
   flash(.7,'255,240,190'); shake(22); SFX.bossDie();
-  banner('조커: 아 노래 끝났네… 재밌었다. 헉헉.','#f6c945');
+  banner('조커: 끝났네 노래… 헉. 재밌었다 진짜.','#f6c945');
 }
 function jokerStun(b,dt){
   b.stunT+=dt; b.inv=0;
@@ -2699,7 +2701,7 @@ function updBoss(b,dt,d){
     if(!b.joker){
       if(b.hp/b.maxHp<=.5){
         b.st='morph'; b.stT=1.9; b.inv=2;
-        banner('연막… 무언가 바뀐다','#9a8fae'); shake(15); flash(.45,'160,150,180'); SFX.morph();
+        banner('연막. 뭔가 바뀌었는데','#9a8fae'); shake(15); flash(.45,'160,150,180'); SFX.morph();
         for(let i=0;i<46;i++) burst(b.x,b.y,1,'#b6a8cc',rnd(280,60),1.4);
         return;
       }
@@ -3921,7 +3923,7 @@ function spawnWave(dt){
     if(T>90&&EN.length<200){
       const c=8+Math.floor(T/90)*3;
       for(let i=0;i<c;i++) Math.random()<.5? spawnDice(T) : spawnCard(T);
-      banner('물량이 몰려온다','#e0344a'); shake(6);
+      banner('온다. 잔뜩.','#e0344a'); shake(6);
     }
   }
 }
@@ -4268,7 +4270,7 @@ function startGame(){
   ['title','end','levelup','paused'].forEach(id=>document.getElementById(id).hidden=true);
   CARD.t=1; CARD.dur=0;
   state='play'; last=0;
-  banner('할 거 없으니까 꼭대기까지 가보자','#f6c945');
+  banner('꼭대기까지 가자','#f6c945');
 }
 function endGame(win){
   if(state==='end') return;
@@ -4279,8 +4281,8 @@ function endGame(win){
   t.style.color=win?'var(--gold)':'var(--cherry)';
   document.getElementById('endStory').textContent = win? STORY.win : STORY.lose;
   document.getElementById('endMsg').textContent = win
-    ? '심심함 해결.'
-    : (RUN.boss? RUN.boss.bname+'에게 붙잡혔다.' : '카드와 주사위에 파묻혔다.');
+    ? '뭐, 나쁘진 않았고.'
+    : (RUN.boss? RUN.boss.bname+'한테 붙잡혔다. 또 오겠지 뭐.' : '카드랑 주사위에 파묻혔다. 숨 막히게.');
   const mm=String(Math.floor(T/60)).padStart(2,'0'), ss=String(Math.floor(T%60)).padStart(2,'0');
   document.getElementById('endStat').innerHTML=
     '<div><b>'+mm+':'+ss+'</b>생존 시간</div>'+
